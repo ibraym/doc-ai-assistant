@@ -2,14 +2,53 @@
 #
 # SPDX-License-Identifier: MIT
 
-import pdftotext
+import re
 
-# get a list pf pages from PDF file
-def get_text_from_pdf(pdf_file):
+import pdftotext
+import docx
+
+def preprocess(text):
+    text = text.replace('\n', ' ')
+    text = text.replace('\t', '')
+    text = re.sub('\s+', ' ', text)
+    return text
+
+# get a list of paragraphs from docx file
+def docx_to_text(filename):
+    """Reads a Word docx file and returns a list of pages.
+
+    Args:
+        filename: The path to the Word file.
+
+    Returns:
+        A list of pages, where each page is a string.
+    """
+
+    with open(filename, "rb") as f:
+        doc = docx.Document(f)
+    paragraphs = []
+
+    for page in doc.paragraphs:
+        if (page.text == ''):
+            continue
+        paragraphs.append(preprocess(page.text))
+    return paragraphs
+
+# get a list of pages from PDF file
+def pdf_to_text(pdf_file):
+    """Reads a PDF file and returns a list of pages.
+
+    Args:
+        filename: The path to the PDF file.
+
+    Returns:
+        A list of pages, where each page is a string.
+    """
+
     pages = []
     with open(pdf_file, 'rb') as f:
         pdf = pdftotext.PDF(f)
     # Iterate over all the pages
     for page in pdf:
-        pages.append(page)
+        pages.append(preprocess(page))
     return pages

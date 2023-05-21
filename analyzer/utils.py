@@ -52,3 +52,22 @@ def pdf_to_text(pdf_file):
     for page in pdf:
         pages.append(preprocess(page))
     return pages
+
+def text_to_chunks(texts, word_length=256, start_page=1):
+    text_tokens = [t.split(' ') for t in texts]
+    chunks = []
+
+    for idx, words in enumerate(text_tokens):
+        for i in range(0, len(words), word_length):
+            chunk = words[i : i + word_length]
+            if (
+                (i + word_length) > len(words)
+                and (len(chunk) < word_length)
+                and (len(text_tokens) != (idx + 1))
+            ):
+                text_tokens[idx + 1] = chunk + text_tokens[idx + 1]
+                continue
+            chunk = ' '.join(chunk).strip()
+            chunk = f'"' + chunk + '"'
+            chunks.append(chunk)
+    return chunks

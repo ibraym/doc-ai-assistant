@@ -4,7 +4,7 @@
 
 import unittest
 
-from analyzer.utils import pdf_to_text, docx_to_text
+from analyzer.utils import pdf_to_text, docx_to_text, text_to_chunks
 
 # test get_text_from_docx function
 def test_get_text_from_docx():
@@ -23,3 +23,11 @@ def test_get_text_from_pdf():
 
 if __name__ == '__main__':
     unittest.main()
+
+# test text_to_chunks function
+def test_text_to_chunks():
+    texts = ['Hello, World!', 'Hello, World!']
+    chunks = text_to_chunks(texts, word_length=2)
+    assert len(chunks) == 2
+    assert chunks[0] == '"Hello, World!"'
+    assert chunks[1] == '"Hello, World!"'

@@ -15,6 +15,7 @@
     "git.enableCommitSigning": true,
     "cSpell.words": [
       "ibraym",
-      "pdftotext"
+      "pdftotext",
+      "strikethrough"
     ],
   }

@@ -2,6 +2,7 @@
 #
 # SPDX-License-Identifier: MIT
 
+from abc import abstractmethod
 from sentence_transformers import SentenceTransformer
 import pandas as pd
 
@@ -18,6 +19,7 @@ class BaseEmbedder:
         texts: The original text to be embedded.
 
     Methods:
+        embed(texts): Embeds the given text using the model.
         get_embeddings(): Returns the embedded text.
         get_texts(): Returns the original text.
         get_dataframe(): Returns a Pandas DataFrame with the embedded text and the original text.
@@ -26,6 +28,18 @@ class BaseEmbedder:
 
     def __init__(self, texts: list):
         self.texts = texts
+
+    @abstractmethod
+    def embed(self, texts: list):
+        """
+        Embeds the given text using the model.
+
+        Args:
+            texts: A list of strings representing the text to be embedded.
+
+        Returns:
+            A list of NumPy arrays representing the embedded text.
+        """
 
     def get_embeddings(self):
         """
@@ -84,9 +98,6 @@ class HuggingFaceEmbedder(BaseEmbedder):
         model: The Hugging Face model to use for embedding.
         texts: The original text to be embedded.
         embeddings: The embedded text.
-
-    Methods:
-        embed(texts): Embeds the given text using the model.
     """
 
     def __init__(self, texts: list):
@@ -95,15 +106,5 @@ class HuggingFaceEmbedder(BaseEmbedder):
         self.embeddings = self.embed(texts=texts)
 
     def embed(self, texts: list):
-        """
-        Embeds the given text using the model.
-
-        Args:
-            texts: A list of strings representing the text to be embedded.
-
-        Returns:
-            A list of NumPy arrays representing the embedded text.
-        """
-
         embeddings = self.model.encode(texts)
         return embeddings

@@ -7,8 +7,8 @@ import os
 env = os.environ.get('APP_ENV', 'develop')
 
 if env == 'development':
-    from development import *
+    from .development import *
 elif env == 'production':
-    from production import *
+    from .production import *
 else:
-    from testing import *
+    from .testing import *

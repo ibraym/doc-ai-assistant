@@ -4,6 +4,8 @@
 
 ANALYZER = {
     'huggingface': {
-        'SentenceTransformers': 'sentence-transformers/all-MiniLM-L6-v2'
+        'SentenceTransformers': 'sentence-transformers/all-MiniLM-L6-v2',
+        'BertForQuestionAnswering': 'bert-large-uncased-whole-word-masking-finetuned-squad',
+        'BertTokenizer': 'bert-large-uncased-whole-word-masking-finetuned-squad'
     }
 }

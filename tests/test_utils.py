@@ -17,10 +17,10 @@ class TestFile(unittest.TestCase):
     # test text_to_chunks function
     def test_text_to_chunks(self):
         texts = ['Hello, World!', 'Hello, World!']
-        chunks = ut.text_to_chunks(texts, word_length=2)
+        chunks = ut.text_to_chunks(texts, 'test.txt', word_length=2)
         assert len(chunks) == 2
-        assert chunks[0] == '"Hello, World!"'
-        assert chunks[1] == '"Hello, World!"'
+        assert chunks[0] == 'test.txt "Hello, World!"'
+        assert chunks[1] == 'test.txt "Hello, World!"'
 
 class TestTxtFile(TestFile):
     def setUp(self) -> None:
@@ -70,7 +70,7 @@ class TestPdfFile(TestFile):
         actual_hash = self.get_actual_hash()
         self.assertEqual(expected_hash, actual_hash)
 
-class TestGetFolderHash(unittest.TestCase):
+class TestFolderFunctions(unittest.TestCase):
     def setUp(self) -> None:
         self.docx_folder = 'tests/assets/test_dataset/docx'
         self.pdf_folder = 'tests/assets/test_dataset/pdf'
@@ -89,15 +89,33 @@ class TestGetFolderHash(unittest.TestCase):
         actual_hash = hash_digest.hexdigest()
         self.assertEqual(expected_hash, actual_hash)
 
-class TestGetDatasetHash(unittest.TestCase):
+    def test_read_folder_docx(self):
+        folder_texts = []
+        ut.read_folder(self.docx_folder, folder_texts)
+        self.assertEqual(folder_texts, ['test.docx "Hello, World! Hello, World!"'])
+
+    def test_read_folder_pdf(self):
+        folder_texts = []
+        ut.read_folder(self.pdf_folder, folder_texts)
+        self.assertEqual(folder_texts, ['test.pdf "Hello, World! Hello, World!"'])
+
+class TestDatasetFunctions(unittest.TestCase):
 
     def setUp(self) -> None:
         self.dataset_path = 'tests/assets/test_dataset'
 
     def test_get_dataset_hash_with_md5(self):
-        expected_hash = "2dd51a6cce74b1f94c8af8f2ed5a5c6a"
+        expected_hash = "d1732bbc462ba6e50ee3f75bf26a044c"
         actual_hash = ut.get_dataset_hash(self.dataset_path)
         self.assertEqual(expected_hash, actual_hash)
+
+    def test_read_dataset(self):
+        dataset_texts = ut.read_dataset(self.dataset_path)
+        self.assertEqual(dataset_texts, [
+            'test_txt.txt "Hello, World!  Hello, World!"',
+            'test.docx "Hello, World! Hello, World!"',
+            'test.pdf "Hello, World! Hello, World!"'
+        ])
 
 if __name__ == '__main__':
     unittest.main()

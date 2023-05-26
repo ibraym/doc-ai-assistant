@@ -26,7 +26,7 @@ def reprocess(text):
 
     text = text.replace('\n', ' ')
     text = text.replace('\t', '')
-    text = re.sub('\s+', ' ', text)
+    text = re.sub(r'\s+', ' ', text)
     return text
 
 # get a list of paragraphs from docx file
@@ -87,7 +87,66 @@ def txt_to_lines(file_path):
         processed_lines.append(reprocess(line))
     return processed_lines
 
-def text_to_chunks(texts: list, word_length: int = 256, start_page: int = 1) -> list:
+def read_file(file_path: str, filename: str) -> list:
+    """
+    Read the contents of a file and return a list of text chunks.
+
+    Args:
+        file_path: The path to the file.
+        filename: The name of the file.
+
+    Returns:
+        A list of text chunks.
+    """
+
+    file_extension = os.path.splitext(file_path)[1].lower()
+    if file_extension in ['.pdf', '.docx', '.txt']:
+        if file_extension == '.pdf':
+            pages = pdf_to_text(file_path)
+            return text_to_chunks(pages, filename)
+        elif file_extension == '.docx':
+            paragraphs = docx_to_text(file_path)
+            return text_to_chunks(paragraphs, filename)
+        else:
+            lines = txt_to_lines(file_path)
+            return text_to_chunks(lines, filename)
+    else:
+        return None
+
+def read_folder(folder_path: str, texts: list) -> list:
+    """
+    Read the contents of all files in a folder and add them to a list.
+
+    Args:
+        folder_path: The path to the folder.
+        texts: A list to store the text chunks.
+
+    Returns:
+        The list of text chunks.
+    """
+
+    for root, _, files in os.walk(folder_path):
+        for file in files:
+            print(file)
+            file_path = os.path.join(root, file)
+            texts += read_file(file_path, file)
+
+def read_dataset(dataset_path: str) -> list:
+    """
+    Read the contents of a dataset and return a list of text chunks.
+
+    Args:
+        dataset_path: The path to the dataset.
+
+    Returns:
+        A list of text chunks.
+    """
+
+    dataset_texts = []
+    read_folder(dataset_path, dataset_texts)
+    return dataset_texts
+
+def text_to_chunks(texts: list, filename, word_length: int = 256) -> list:
     """
     Splits a list of texts into chunks of the given word length.
 
@@ -114,7 +173,7 @@ def text_to_chunks(texts: list, word_length: int = 256, start_page: int = 1) -> 
                 text_tokens[idx + 1] = chunk + text_tokens[idx + 1]
                 continue
             chunk = ' '.join(chunk).strip()
-            chunk = f'"' + chunk + '"'
+            chunk = '{} "{}"'.format(filename, chunk)
             chunks.append(chunk)
     return chunks
 
@@ -177,13 +236,10 @@ def get_folder_hash(folder_path, hash_digest):
         None.
     """
 
-    for root, dirs, files in os.walk(folder_path):
+    for root, _, files in os.walk(folder_path):
         for file in files:
             file_path = os.path.join(root, file)
             get_file_hash(file_path, hash_digest)
-        for _dir in dirs:
-            dir_path = os.path.join(root, _dir)
-            get_folder_hash(dir_path, hash_digest)
 
 def get_file_hash(file_path, hash_digest):
     """

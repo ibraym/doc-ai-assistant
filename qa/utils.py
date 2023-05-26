@@ -5,13 +5,11 @@
 import re
 import hashlib
 import os
+import ast
 
-from scipy import spatial
-import pandas as pd
+import numpy as np
 import pdftotext
 import docx
-
-from .embedder import BaseEmbedder
 
 def reprocess(text):
     """
@@ -127,7 +125,6 @@ def read_folder(folder_path: str, texts: list) -> list:
 
     for root, _, files in os.walk(folder_path):
         for file in files:
-            print(file)
             file_path = os.path.join(root, file)
             texts += read_file(file_path, file)
 
@@ -177,37 +174,6 @@ def text_to_chunks(texts: list, filename, word_length: int = 256) -> list:
             chunks.append(chunk)
     return chunks
 
-def strings_ranked_by_relatedness(
-    query: str,
-    source_embeddings: pd.DataFrame,
-    embedder: BaseEmbedder,
-    relatedness_fn=lambda x, y: 1 - spatial.distance.cosine(x, y),
-    top_n: int = 100
-) -> 'tuple[list[str], list[float]]':
-    """
-    Ranks a list of strings by their relatedness to a given query.
-
-    Args:
-        query: The query string.
-        source_embeddings: A Pandas DataFrame of source embeddings.
-        embedder: An embedding model.
-        relatedness_fn: A function that computes the relatedness between two embeddings.
-        top_n: The number of top-ranked strings to return.
-
-    Returns:
-        A tuple of two lists: the first list contains the top-ranked strings, and the second list contains their relatedness scores.
-    """
-
-    output = embedder.embed([query])
-    query_embedding = output[0]
-    strings_and_relatednesses = [
-        (row["text"], relatedness_fn(query_embedding, row["embedding"]))
-        for i, row in source_embeddings.iterrows()
-    ]
-    strings_and_relatednesses.sort(key=lambda x: x[1], reverse=True)
-    strings, relatednesses = zip(*strings_and_relatednesses)
-    return strings[:top_n], relatednesses[:top_n]
-
 def get_dataset_hash(dataset_path, hash_algorithm='md5'):
     """
     Get the hash of a dataset.
@@ -256,3 +222,7 @@ def get_file_hash(file_path, hash_digest):
     with open(file_path, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
             hash_digest.update(chunk)
+
+def from_np_array(array_string):
+    array_string = ','.join(array_string.replace('[ ', '[').split())
+    return np.array(ast.literal_eval(array_string))

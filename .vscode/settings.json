@@ -14,6 +14,7 @@
   "python.testing.cwd": "${workspaceFolder}/tests",
   "git.enableCommitSigning": true,
   "cSpell.words": [
+    "argmax",
     "dataframe",
     "Embedder",
     "finetuned",
@@ -24,6 +25,7 @@
     "pretrained",
     "relatednesses",
     "scipy",
-    "strikethrough"
+    "strikethrough",
+    "texteditor"
   ]
 }

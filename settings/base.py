@@ -17,6 +17,8 @@ ANALYZER = {
 
 DATA_ROOT = os.path.join(BASE_DIR, 'data')
 EMBEDDINGS_ROOT = os.path.join(DATA_ROOT, 'embeddings')
+DATASETS_ROOT = os.path.join(DATA_ROOT, 'datasets')
 
 os.makedirs(DATA_ROOT, exist_ok=True)
 os.makedirs(EMBEDDINGS_ROOT, exist_ok=True)
+os.makedirs(DATASETS_ROOT, exist_ok=True)

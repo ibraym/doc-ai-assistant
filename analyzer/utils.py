@@ -7,21 +7,31 @@ import re
 import pdftotext
 import docx
 
-def preprocess(text):
+def reprocess(text):
+    """
+    Reprocesses a text by removing newlines, tabs, and extra spaces.
+
+    Args:
+        text: The text to be preprocessed.
+
+    Returns:
+        The preprocessed text.
+    """
+
     text = text.replace('\n', ' ')
     text = text.replace('\t', '')
     text = re.sub('\s+', ' ', text)
     return text
 
 # get a list of paragraphs from docx file
-def docx_to_text(filename):
+def docx_to_text(filename: str) -> list:
     """Reads a Word docx file and returns a list of pages.
 
     Args:
         filename: The path to the Word file.
 
     Returns:
-        A list of pages, where each page is a string.
+        A list of paragraphs, where each paragraph is a string.
     """
 
     with open(filename, "rb") as f:
@@ -31,11 +41,11 @@ def docx_to_text(filename):
     for page in doc.paragraphs:
         if (page.text == ''):
             continue
-        paragraphs.append(preprocess(page.text))
+        paragraphs.append(reprocess(page.text))
     return paragraphs
 
 # get a list of pages from PDF file
-def pdf_to_text(pdf_file):
+def pdf_to_text(filename: str) -> list:
     """Reads a PDF file and returns a list of pages.
 
     Args:
@@ -46,14 +56,26 @@ def pdf_to_text(pdf_file):
     """
 
     pages = []
-    with open(pdf_file, 'rb') as f:
+    with open(filename, 'rb') as f:
         pdf = pdftotext.PDF(f)
     # Iterate over all the pages
     for page in pdf:
-        pages.append(preprocess(page))
+        pages.append(reprocess(page))
     return pages
 
-def text_to_chunks(texts, word_length=256, start_page=1):
+def text_to_chunks(texts: list, word_length: int = 256, start_page: int = 1) -> list:
+    """
+    Splits a list of texts into chunks of the given word length.
+
+    Args:
+        texts: A list of strings representing the text to be split.
+        word_length: The desired length of each chunk.
+        start_page: The page number to start splitting from.
+
+    Returns:
+        A list of strings representing the chunks.
+    """
+
     text_tokens = [t.split(' ') for t in texts]
     chunks = []
 

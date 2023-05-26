@@ -20,9 +20,8 @@ class BaseEmbedder:
 
     Methods:
         embed(texts): Embeds the given text using the model.
-        get_embeddings(): Returns the embedded text.
         get_texts(): Returns the original text.
-        get_dataframe(): Returns a Pandas DataFrame with the embedded text and the original text.
+        get_dataframe(embeddings): Returns a Pandas DataFrame with the embedded text and the original text.
         length(): Returns the length of the embedded text.
     """
 
@@ -30,7 +29,7 @@ class BaseEmbedder:
         self.texts = texts
 
     @abstractmethod
-    def embed(self, texts: list):
+    def embed(self) -> pd.DataFrame:
         """
         Embeds the given text using the model.
 
@@ -38,18 +37,8 @@ class BaseEmbedder:
             texts: A list of strings representing the text to be embedded.
 
         Returns:
-            A list of NumPy arrays representing the embedded text.
+            A panada DataFrame contains the embeddings with the original text.
         """
-
-    def get_embeddings(self):
-        """
-        Returns the embedded text.
-
-        Returns:
-            A list of NumPy arrays representing the embedded text.
-        """
-
-        return self.embeddings
 
     def get_texts(self):
         """
@@ -61,7 +50,7 @@ class BaseEmbedder:
 
         return self.texts
 
-    def get_dataframe(self):
+    def get_dataframe(self, embeddings) -> pd.DataFrame:
         """
         Returns a Pandas DataFrame with the embedded text and the original text.
 
@@ -71,7 +60,7 @@ class BaseEmbedder:
 
         output = []
         i=0
-        for embedding in self.embeddings:
+        for embedding in embeddings:
             output.append({"text": self.texts[i], 'embedding': embedding})
             i+=1
         return pd.DataFrame(output)
@@ -97,14 +86,13 @@ class HuggingFaceEmbedder(BaseEmbedder):
     Attributes:
         model: The Hugging Face model to use for embedding.
         texts: The original text to be embedded.
-        embeddings: The embedded text.
     """
 
     def __init__(self, texts: list):
         super().__init__(texts)
         self.model = SentenceTransformer(settings.ANALYZER['huggingface']['SentenceTransformers'])
-        self.embeddings = self.embed(texts=texts)
 
-    def embed(self, texts: list):
-        embeddings = self.model.encode(texts)
-        return embeddings
+    def embed(self):
+        embeddings = self.model.encode(self.texts)
+        df = self.get_dataframe(embeddings)
+        return df
